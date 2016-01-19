@@ -1,0 +1,104 @@
+---
+title: "MachLearningProject.Rmd"
+author: "LaurenR"
+date: "January 10, 2016"
+output: pdf_document
+---
+The purpose of this exercise is to use machine learning to create an algorithm that can predict how a subject is performing a bicep curl using data collected from movement sensors. The dataset includes 6 participants, all of whom wore sensors while preforming a bicep curl in 5 different ways. Classe A is considered proper form, while B-E are an approximation of common mistakes. The aim of this algorithm is to take activity tracking beyond simply recording movement and begin to provide the user with feedback on the quality of their movement. Packages used: caret, base plotting
+
+Data is provided by http://groupware.les.inf.puc-rio.br/har  Credit given to: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+*We start by dividing the training dataset into a crossvalidation set of 75% training, 25% testing.*
+```{r, message=FALSE, echo=FALSE}
+library(caret)
+```
+```{r}
+setwd("C:/Users/Lauren/Documents/Machine Learning/ProjectData")
+trainData <- read.csv("pml-training.csv", stringsAsFactors = FALSE)
+testData <- read.csv("pml-testing.csv", stringsAsFactors = FALSE)
+intrainingA <- createDataPartition(y=trainData$classe, p=0.75, list=FALSE)
+trainA <- trainData[intrainingA,]
+testA <- trainData[-intrainingA,]
+dim(trainA)
+```
+*Exploratory analysis can be conducted on our training dataset to identify potential predictors for use in the model.*
+```{r}
+names(trainA)[1:20]
+```
+The goal is to predict the Classe variable found in column 160 using the relevant 159 other variables. Let's look at the distribution of the classe variable.
+```{r}
+table(trainA$classe)
+```
+Most of the data is for Classe A with B-E pretty evenly distributed. A represents
+proper technique while B-E are each a common error.
+We will change the Classe variable to a factor for easier graphing and look at the user_name category to see how data is distributed among participants
+```{r}
+trainA$classe <- as.factor(trainA$classe)
+table(trainA$user_name)
+```
+There are six users, all pretty evenly accounted for in the data. Let's look
+at adelmo for any patterns. Looking at only one subject may also protect against overfitting and allow for easier pattern recognition in our graphs.
+```{r}
+adelmo <- subset(trainA, user_name == "adelmo")
+dim(adelmo)
+```
+Let's try to graph "gyros_dumbbell_x/y/x" color coded by our outcome, x/y/z movement seems like it will give the most movement information.
+```{r, echo=FALSE}
+par(mfrow=c(3,1))
+plot(adelmo[,113], col=adelmo$classe, ylab=names(adelmo[113]))
+plot(adelmo[,114], col=adelmo$classe, ylab=names(adelmo[114]))
+plot(adelmo[,115], col=adelmo$classe, ylab=names(adelmo[115]))
+legend("topright", legend=unique(adelmo$classe), col=unique(adelmo$classe), pch=1)
+```
+
+These variables all show patterns that are distinct for each outcome.
+
+Let's graph the accel_dumbbell variable in the x,y,z to see if it also shows patterns.
+```{r, echo=FALSE}
+par(mfrow=c(3,1), mar= c(5,4,1,1))
+plot(adelmo[,116], col=adelmo$classe, ylab=names(adelmo[116]))
+plot(adelmo[,117], col=adelmo$classe, ylab=names(adelmo[117]))
+plot(adelmo[,118], col=adelmo$classe, ylab=names(adelmo[118]))
+legend("topright", legend=unique(adelmo$classe), col=unique(adelmo$classe), pch=1)
+```
+
+We will assume that the x/y/z movement data are relevant predictors, not only are they showing distinct patterns, but there is a good amount of data for each. Let's graph the kurosis measure for the dumbbell to see if this shows a pattern as well.
+
+```{r}
+par(mfrow=c(3,1), mar= c(5,4,1,1))
+plot(adelmo[,69], col=adelmo$classe, ylab=names(adelmo[69]))
+plot(adelmo[,70], col=adelmo$classe, ylab=names(adelmo[70]))
+plot(adelmo[,71], col=adelmo$classe, ylab=names(adelmo[71]))
+legend("left", legend=unique(adelmo$classe), col=unique(adelmo$classe), pch=1)
+```
+
+Less of a pattern is shown with this variable and data points are much more scarce.
+The x/y/z measures of each sensor may include enough data to adequately inform our model, we will subset only those variables.
+
+```{r}
+xyz <- grep("_x$|_y$|_z$", names(adelmo))
+adelmoXYZ <- adelmo[,c(xyz,160)]
+dim(adelmoXYZ)
+any(is.na(adelmoXYZ))
+```
+
+We now have a smaller data frame without any missing data.
+
+Now we will subset our larger trainA dataset that includes all participants and look at the dendogram. We can see that classification at this level is fruitful.
+
+```{r}
+trainAxyz <- trainA[,c(xyz, 160)]
+mdist1 <- dist(trainAxyz[,1:3])
+hclustering1 <- hclust(mdist1)
+plot(hclustering1)
+```
+
+From here we will train a model using Principal Component Analysis in preprocessing, and K Nearest Neighbor method. It can be assumed that many of the x/y/z movements are highly correlated with one another and using PCA should reduce the noise and produce a more effective and efficient model.
+```{r}
+set.seed(500)
+modelFit <- train(classe ~ ., preProcess="pca", data=trainAxyz,method="knn")
+modelFit$finalModel
+predictions <- predict(modelFit, newdata= testA)
+confusionMatrix(predictions, testA$classe)
+```
+When applied to our cross validation training set, the model has a 95% accuracy rate. When applied to new data, our model should have a 5% Out of Sample Error Rate. 
