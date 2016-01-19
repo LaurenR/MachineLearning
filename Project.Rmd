@@ -2,7 +2,9 @@
 title: "MachLearningProject.Rmd"
 author: "LaurenR"
 date: "January 10, 2016"
-output: pdf_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 The purpose of this exercise is to use machine learning to create an algorithm that can predict how a subject is performing a bicep curl using data collected from movement sensors. The dataset includes 6 participants, all of whom wore sensors while preforming a bicep curl in 5 different ways. Classe A is considered proper form, while B-E are an approximation of common mistakes. The aim of this algorithm is to take activity tracking beyond simply recording movement and begin to provide the user with feedback on the quality of their movement. Packages used: caret, base plotting
 
