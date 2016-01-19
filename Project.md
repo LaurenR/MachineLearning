@@ -70,7 +70,7 @@ table(trainA$user_name)
 ```
 ## 
 ##   adelmo carlitos  charles   eurico   jeremy    pedro 
-##     2937     2330     2664     2293     2516     1978
+##     2883     2364     2678     2344     2529     1920
 ```
 There are six users, all pretty evenly accounted for in the data. Let's look
 at adelmo for any patterns. Looking at only one subject may also protect against overfitting and allow for easier pattern recognition in our graphs.
@@ -81,7 +81,7 @@ dim(adelmo)
 ```
 
 ```
-## [1] 2937  160
+## [1] 2883  160
 ```
 Let's try to graph "gyros_dumbbell_x/y/x" color coded by our outcome, x/y/z movement seems like it will give the most movement information.
 ![](Project_files/figure-html/unnamed-chunk-7-1.png)\
@@ -122,7 +122,7 @@ dim(adelmoXYZ)
 ```
 
 ```
-## [1] 2937   37
+## [1] 2883   37
 ```
 
 ```r
@@ -173,32 +173,32 @@ confusionMatrix(predictions, testA$classe)
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1350   28   10   12    2
-##          B    9  887   20    1   15
-##          C   22   28  808   26   10
-##          D   10    5   14  763    6
-##          E    4    1    3    2  868
+##          A 1358   21   16    6    4
+##          B    9  902   20    5   16
+##          C    7   15  784   31    6
+##          D   21    7   28  758    7
+##          E    0    4    7    4  868
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.9535          
-##                  95% CI : (0.9472, 0.9592)
+##                Accuracy : 0.9523          
+##                  95% CI : (0.9459, 0.9581)
 ##     No Information Rate : 0.2845          
 ##     P-Value [Acc > NIR] : < 2.2e-16       
 ##                                           
-##                   Kappa : 0.9412          
-##  Mcnemar's Test P-Value : 1.262e-05       
+##                   Kappa : 0.9396          
+##  Mcnemar's Test P-Value : 0.0008728       
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9677   0.9347   0.9450   0.9490   0.9634
-## Specificity            0.9852   0.9886   0.9788   0.9915   0.9975
-## Pos Pred Value         0.9629   0.9517   0.9038   0.9561   0.9886
-## Neg Pred Value         0.9872   0.9844   0.9883   0.9900   0.9918
+## Sensitivity            0.9735   0.9505   0.9170   0.9428   0.9634
+## Specificity            0.9866   0.9874   0.9854   0.9846   0.9963
+## Pos Pred Value         0.9665   0.9475   0.9300   0.9233   0.9830
+## Neg Pred Value         0.9894   0.9881   0.9825   0.9887   0.9918
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2753   0.1809   0.1648   0.1556   0.1770
-## Detection Prevalence   0.2859   0.1900   0.1823   0.1627   0.1790
-## Balanced Accuracy      0.9765   0.9616   0.9619   0.9702   0.9804
+## Detection Rate         0.2769   0.1839   0.1599   0.1546   0.1770
+## Detection Prevalence   0.2865   0.1941   0.1719   0.1674   0.1801
+## Balanced Accuracy      0.9800   0.9689   0.9512   0.9637   0.9798
 ```
 When applied to our cross validation training set, the model has a 95% accuracy rate. When applied to new data, our model should have a 5% Out of Sample Error Rate. 
