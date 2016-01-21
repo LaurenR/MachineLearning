@@ -1,5 +1,5 @@
 ---
-title: "MachLearningProject.Rmd"
+title: "Predicting Exercise Form through Movement Sensor Data"
 author: "LaurenR"
 date: "January 10, 2016"
 output: 
